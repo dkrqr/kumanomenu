@@ -7,7 +7,7 @@ function today(){
   }
   
   //propertyになければwebから取得
-  if(!menu[1]){
+  if(!menu[0]&&!menu[1]&&!menu[2]){
     //今日のメニューを取得
     var stringToday = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'MM月,dd日');
     menu = getMenu(stringToday);
@@ -40,7 +40,12 @@ function tomorrow(){
   var menu = getMenu(stringTomorrow);
   
   //なければ終わり
-  if(menu==0) return -1;
+  if(menu==0){  //金曜の夜実行時はここに入るはず
+    for(var i=0;i<3;i++){  //土曜日にtoday()を実行したときにPropertyが空でないといけないので
+      setMenuProp(i,'');
+    }
+    return -1;
+  }
   
   menu[0] = "明日" + menu[0];
   
@@ -60,6 +65,7 @@ function tomorrow(){
 
 //メニューをscript propertyに記録
 function setMenuProp(i,menu){
+  //i=2;menu="";
   var scriptProp = PropertiesService.getScriptProperties();
   scriptProp.deleteProperty('menu' + i);
   scriptProp.setProperty('menu' + i, menu);
@@ -71,7 +77,7 @@ function getMenuProp(i){
   var scriptProp = PropertiesService.getScriptProperties();
   var menu = scriptProp.getProperty('menu' + i);
   //deleteにすると読み取れなかった時点でエラーになるので空文字列をセット
-  scriptProp.setProperty('menu' + i,'');
+  //scriptProp.setProperty('menu' + i,'');
   return menu;
 }
 
@@ -95,7 +101,7 @@ function getMenu(stringDate){
     //ヨーグルトサラダ好き
     menu[i] = menu[i].replace(/ヨーグルトサラダ/g,'＿人人人人人人人人人人＿\n＞　ヨーグルトサラダ　＜\n￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^￣');
     //卯の花嫌い
-    menu[i] = menu[i].replace(/卯の花/g,'卯゛の゛花゛');
+    //menu[i] = menu[i].replace(/卯の花/g,'卯゛の゛花゛');
     
     if(menu[i]=='\n')
       menu[i] = '\nなし';
@@ -125,7 +131,7 @@ function isNewMenu(menu){
     Logger.log(dish[i]);
     if(!body.findText(dish[i])){
       body.setText(body.getText() + dish[i]);
-      //menu = menu.replace(dish[i], '🈟' + dish[i]);
+      menu = menu.replace(dish[i], '🈟' + dish[i]);  //新メニュー機能を外すときはこの行をコメントアウト
     }
   }
   //連続する','を1個に
@@ -139,5 +145,14 @@ function getMenu2(){
   date.setDate(date.getDate() - 1);
   var stringTomorrow = Utilities.formatDate(date, 'Asia/Tokyo', 'MM月,dd日');
   var menu = getMenu(stringTomorrow);
+  return 0;
+}
+
+function LogScriptProperty(){
+  for(var i=0;i<3;i++){
+    var scriptProp = PropertiesService.getScriptProperties();
+    var menu = scriptProp.getProperty('menu' + i);
+    Logger.log(menu);
+  }
   return 0;
 }

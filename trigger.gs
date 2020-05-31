@@ -1,9 +1,19 @@
 //10分毎にtoday()を実行するトリガーを立てる
-//毎週月曜0時に実行
+//毎週月曜8時台に実行
 function buildTenMinTrigger(){
-  //先週の10分毎トリガーが残ってるかもしれないので消す
+  //長期休暇中などは先週の10分毎トリガーが残ってるかもしれないので消す
   deleteTenMinTrigger();
   
+  //propertyが空でなければ，すでにメニューが登録されているのでトリガーを立てない
+  var menu = {};
+  for(var i=0;i<3;i++){
+    //script propertyに記録されているメニューを取得
+    menu[i] = getMenuProp(i);
+    if(menu[i]){
+      return 1;
+    }
+  }
+    
   var tenMinTrigger = ScriptApp.newTrigger("today")
                         .timeBased()
                         .everyMinutes(10)
