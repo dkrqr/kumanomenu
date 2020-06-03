@@ -83,20 +83,24 @@ function getMenuProp(i){
 
 function getMenu(stringDate){
   var regExp = new RegExp('<tr><th>'+ stringDate + '.*?<\/tr>');
-  Logger.log(regExp);
+  //Logger.log(regExp);
   stringDate = stringDate.replace(',','');
+  
   var response = UrlFetchApp.fetch('https://menus.kumano-ryo.com/');
   var contentString = response.getContentText();
-  contentString = contentString.replace(/[\s]+/g,',');
-  contentString = contentString.replace(/>,</g,'><');
+  contentString = contentString.replace(/[\s]+/g,',');  //空白文字をすべて','に
+  contentString = contentString.replace(/>,</g,'><');  //HTMLタグ間は','消す
   Logger.log(contentString);
-  var allMenu = contentString.match(regExp);
+  
+  var allMenu = contentString.match(regExp);  //その日の部分だけを切り取ってallMenuの要素に入れる
   Logger.log('allMenu:' + allMenu);
   if(!allMenu){return 0;}
-  var menu = allMenu[0].match(/<pre>.*?<\/pre>/g);
+  
+  var menu = allMenu[0].match(/<pre>.*?<\/pre>/g);  //昼食1,昼食2,夕食に分ける(ここのために全体が0baseになってる)
   for(var i=0;i<3;i++){
     menu[i] = menu[i].replace(/<\/??pre>/g,',');
     menu[i] = isNewMenu(menu[i]);
+    menu[i] = removeEgg(menu[i]);
     menu[i] = menu[i].replace(/,/g,'\n');
     //ヨーグルトサラダ好き
     menu[i] = menu[i].replace(/ヨーグルトサラダ/g,'＿人人人人人人人人人人＿\n＞　ヨーグルトサラダ　＜\n￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^￣');
@@ -109,6 +113,7 @@ function getMenu(stringDate){
   menu[0]="(" + stringDate + ")の #熊野寮食\n[昼食1]" + menu[0];
   menu[1]="[昼食2]" + menu[1];
   menu[2]="[夕食]" + menu[2];
+  Logger.log(menu);
   return menu;
 }
 
@@ -120,11 +125,13 @@ function isNewMenu(menu){
   var body = doc.getBody();
   
   //正規表現で処理するために','を2個に(<pre>から変換した,は1個のまま)
+  //,めにゅー,,メニュー,,料理,
   menu = menu.replace(/,/g,',,').substr(1);
   Logger.log(menu);
   
   //,hoge,を抽出
   var dish = menu.match(/,.+?,/g);
+  if(dish==null)  return menu;
   
   for(var i=0;dish[i];i++){
     dish[i]= dish[i].substr(1);
@@ -132,6 +139,46 @@ function isNewMenu(menu){
     if(!body.findText(dish[i])){
       body.setText(body.getText() + dish[i]);
       menu = menu.replace(dish[i], '🈟' + dish[i]);  //新メニュー機能を外すときはこの行をコメントアウト
+    }
+  }
+  //連続する','を1個に
+  menu = menu.replace(/,+/g,',');
+  Logger.log(menu);
+  return menu;
+}
+
+//卵：除去可，卵：除去不可の表記ゆれ軽減
+function removeEgg(menu){
+  //正規表現で処理するために','を2個に(<pre>から変換した,は1個のまま)
+  menu = menu.replace(/,/g,',,').substr(1);
+  Logger.log(menu);
+  
+  //,hoge,を抽出
+  var dish = menu.match(/,.+?,/g);
+  if(dish==null)  return menu;
+  
+  for(var i=0;dish[i];i++){
+    dish[i]= dish[i].substr(1);
+    Logger.log(dish[i]);
+    if(dish[i].match(/コロッケ.*除去可/)){
+      menu = menu.replace(dish[i-1], 
+                          dish[i-1].substr(0,dish[i-1].length-1) + '（卵入り（つなぎ）：コロッケ除去可）,');
+      menu = menu.replace(dish[i],'');
+    }
+    else if(dish[i].match(/除去可/)){
+      menu = menu.replace(dish[i-1], 
+                          dish[i-1].substr(0,dish[i-1].length-1) + '（卵入り：除去可）,');
+      menu = menu.replace(dish[i],'');
+    }
+    else if(dish[i].match(/コロッケ.*除去不可/)){
+      menu = menu.replace(dish[i-1], 
+                          dish[i-1].substr(0,dish[i-1].length-1) + '（卵入り（つなぎ）：コロッケ除去不可）,');
+      menu = menu.replace(dish[i],'');
+    }
+    else if(dish[i].match(/除去不可/)){
+      menu = menu.replace(dish[i-1], 
+                          dish[i-1].substr(0,dish[i-1].length-1) + '（卵入り：除去不可）,');
+      menu = menu.replace(dish[i],'');
     }
   }
   //連続する','を1個に
