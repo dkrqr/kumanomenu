@@ -1,7 +1,4 @@
-var twitter = TwitterWebService.getInstance(
-  PropertiesService.getScriptProperties().getProperty('ConsumerKey'),
-  PropertiesService.getScriptProperties().getProperty('ConsumerSecret')
-);
+
 
 // 認証
 function authorize() {
@@ -26,7 +23,7 @@ function getUserTimeline(screenName) {
                                + '&trim_user=true'  
   );
   response = JSON.parse(response);
-  Logger.log(response);
+//  Logger.log(response);
   return response;
 }
 
@@ -41,6 +38,11 @@ function getUserTimelineSinceId(screenName,sinceId) {
   response = JSON.parse(response);
   Logger.log(response);
   return response;
+}
+
+function test(){
+  postLongTweet("ああああああああああああああああああhttps://www.youtube.com/watch?v=Fk4sgvvHyeI www.youtube.com/watch?v=Fk4sgvvHyeIああああああああああああああああああああああああああああああああああああああああああああああああああbit.ly/TaSKTaSKああああああああああああああああああああああああああああああああああああああああああああああああああぷgoogle.comああいおおおおおおおおおおおおお");
+  return 0;
 }
 
 function modifyContent(content){
@@ -122,4 +124,33 @@ function postLongTweet(originalContent, status) {
     }
   }
   return status;
+}
+
+//ユーザー情報を取得
+function getUserInfo() {
+  var service  = twitter.getService();
+  var response = service.fetch('https://api.twitter.com/1.1/account/verify_credentials.json');
+  response = JSON.parse(response);
+  Logger.log(response);
+  return response;
+}
+
+//ユーザー情報を変更
+function setUserInfo(name, url, location, description) {
+  var service  = twitter.getService();
+  var fetchUrl = 'https://api.twitter.com/1.1/account/update_profile.json?'
+  if(name)        fetchUrl += '&name='        + name;
+  if(url)         fetchUrl += '&url='         + url;
+  if(location)    fetchUrl += '&location='    + location;
+  if(description) fetchUrl += '&description=' + description;
+  fetchUrl = fetchUrl.replace(/\?\&/,'?');
+  Logger.log(fetchUrl);
+  var response = service.fetch(fetchUrl,
+    {
+    method: 'post',
+    muteHttpExceptions:true
+  });
+  response = JSON.parse(response);
+  Logger.log(response);
+  return response;
 }
