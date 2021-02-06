@@ -1,8 +1,3 @@
-//人力での入力はgoogle form?にする。
-//formは曜日ごとにページを変えて，各ページに3問。長文形式。
-//入力を検出できるので，同時に新メニュー判定・tweet・トリガー削除を行う
-//各食のメインメニューを1週間分呟いてもよさそう
-
 function todaySS(){
   tweetMenuSS(0);
 }
@@ -119,4 +114,38 @@ function convertToString(dataArray){
     stringArray.push(string);
   }
   return stringArray;
+}
+
+/**
+ * 1週間分のメニューをつぶやく
+ * 
+ * @param {array} menuData {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * @return {array} [{date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}]
+ */
+function tweetWeekMenu(menuData){
+  var result = '';
+  var content = '今週のメニュー\n';
+  for(var i=0;i<menuData.length;i++){
+    var date = new Date(menuData[i].date);
+    content += Utilities.formatDate(date,'JST','MM月dd日');
+    switch(date.getDay()){
+      case 0: content += '(日)'; break;
+      case 1: content += '(月)'; break;
+      case 2: content += '(火)'; break;
+      case 3: content += '(水)'; break;
+      case 4: content += '(木)'; break;
+      case 5: content += '(金)'; break;
+      case 6: content += '(土)'; break;
+      default: break;
+    }
+    content += '\n[昼食1] ' + ((menuData[i].lunch1 == null)?'なし':menuData[i].lunch1[0]) + 
+               '\n[昼食2] ' + ((menuData[i].lunch2 == null)?'なし':menuData[i].lunch2[0]) +
+               '\n[夕食] '  + ((menuData[i].dinner == null)?'なし':menuData[i].dinner[0]);
+    result = postLongTweet(content,result);
+    if(result.getResponseCode() != 200){
+      console.log(stringArray[i] + "を送信できませんでした");
+      return 1;
+    }
+    content += '';
+  }
 }

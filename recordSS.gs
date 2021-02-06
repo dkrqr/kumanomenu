@@ -36,6 +36,7 @@ function writeSpreadSheet(){
 function getWeekMenuFromForm(){
   // フォームを開いて，まえにチェックしたときのタイムスタンプ以降の回答を取得
   // https://developers.google.com/apps-script/reference/forms/item-response
+  // formの入力をトリガーにする方法を見つけたのでそのうち変える
   var scriptProperties = PropertiesService.getScriptProperties();
   var form = FormApp.openById(scriptProperties.getProperty('formId'));
   var formResponses = form.getResponses(new Date(parseFloat(scriptProperties.getProperty('formTimeStamp'))));
@@ -264,39 +265,3 @@ function columnWidth(){
     sheet.setColumnWidth(i*2+2, 100);
   }
 }
-
-/**
- * 1週間分のメニューをつぶやく
- * 
- * @param {array} menuData {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
- * @return {array} [{date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}]
- */
-function tweetWeekMenu(menuData){
-  var result = '';
-  var content = '今週のメニュー\n';
-  for(var i=0;i<menuData.length;i++){
-    var date = new Date(menuData[i].date);
-    content += Utilities.formatDate(date,'JST','MM月dd日');
-    switch(date.getDay()){
-      case 0: content += '(日)'; break;
-      case 1: content += '(月)'; break;
-      case 2: content += '(火)'; break;
-      case 3: content += '(水)'; break;
-      case 4: content += '(木)'; break;
-      case 5: content += '(金)'; break;
-      case 6: content += '(土)'; break;
-      default: break;
-    }
-    content += '\n[昼食1] ' + ((menuData[i].lunch1 == null)?'なし':menuData[i].lunch1[0]) + 
-               '\n[昼食2] ' + ((menuData[i].lunch2 == null)?'なし':menuData[i].lunch2[0]) +
-               '\n[夕食] '  + ((menuData[i].dinner == null)?'なし':menuData[i].dinner[0]);
-    result = postLongTweet(content,result);
-    if(result.getResponseCode() != 200){
-      console.log(stringArray[i] + "を送信できませんでした");
-      return 1;
-    }
-    content += '';
-  }
-}
-
-
