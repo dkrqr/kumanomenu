@@ -10,16 +10,17 @@ function tomorrowSS(){
  * 毎日8時半に今日，21時半に明日をtweet
  * 
  * @param {Integer} tomorrow 1:tomorrow,0:today
- * @return
+ * @return {array} tweet内容
  */
 function tweetMenuSS(tomorrow) {
+  tomorrow = -3;
   //SSから情報を取得する関数
-  var menuArray = getMenufromSS(tomorrow);
-  if(menuArray[0][0] == '' && menuArray[0][10] == '' && menuArray[0][20] == ''){
-    return 0;
+  var menuData = getMenufromSS(tomorrow);
+  if(menuData.lunch1[0] == '' && menuData.lunch2[0] == '' && menu.dinner[0] == ''){
+    return;
   }
   //よしなに成型する関数
-  var stringArray = convertToString(menuArray);
+  var stringArray = convertToString(menuData);
   //日付，昼食とかをつける
   var date = new Date();
   date.setDate(date.getDate() + tomorrow);
@@ -52,22 +53,23 @@ function tweetMenuSS(tomorrow) {
     result = postLongTweet(stringArray[i],result);
     if(result.getResponseCode() != 200){
       console.log(stringArray[i] + "を送信できませんでした");
-      return 1;
+      return stringArray;
     }
   }
-  return 0;
+  return stringArray;
 }
 
 /**
  * メニューをSpreadsheetから読み取る
  * 
  * @param {Integer} daysAfter 0:today,1:tomorrow,...
- * @return {array} 今日のメニューの配列。SSからとったまま
+ * @return {object} {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
  */
 function getMenufromSS(daysAfter){
   //dateからdataRowを算出
-  var date = new Date();
+  var date = new Date(new Date().toDateString());
   date.setDate(date.getDate() + daysAfter);
+  Logger.log(date);
   var thisYear = new Date(date.getFullYear() + '/01/01'); //今年のJan 01 00:00:00 GMT+09:00
   var elapsed = date.getTime() - thisYear.getTime(); //経過時間msec
   var dataRow = Math.floor(elapsed/1000/60/60/24) + 2; //除算で日数-1がでて，スプレッドシート2行目が1/1なので+2
@@ -80,39 +82,90 @@ function getMenufromSS(daysAfter){
   if(!sheet){
     sheet = makeNewSheet(book);
   }
-  var range = sheet.getRange(dataRow,2,1,30);
-  var data = range.getValues();
+  var range = sheet.getRange(dataRow,1,1,31);
+  var menuArray = range.getValues();
+  Logger.log(menuArray);
+  var data = {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+  data.date = date.valueOf();
+  for(var i=0;i<5;i++){
+    data.lunch1.push(menuArray[0][i*2+1]);
+    data.lunch2.push(menuArray[0][i*2+11]);
+    data.dinner.push(menuArray[0][i*2+21]);
+    data.lunch1New.push(menuArray[0][i*2+2]=='🈟');
+    data.lunch2New.push(menuArray[0][i*2+12]=='🈟');
+    data.dinnerNew.push(menuArray[0][i*2+22]=='🈟');
+  }
+  Logger.log(data);
   return data;
 }
 
 /**
  * よしなに成型する
  * 
- * @param {array} dataArray SSから読み取ったメニューの配列
- * @return {array} 整形後の文字列の配列
+ * @param {object} data {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+ * @return {array} 整形後の文字列の配列 0:lunch1,1:lunch2,2:dinner
  */
-function convertToString(dataArray){
+function convertToString(data){
   var stringArray = [];
-  for(var i = 0; i < 3; i++){
-    var string = '';
-    for(var j = 0; j < 5; j++){
-      if(dataArray[0][i*10+j*2] == ''){
-        break;
-      }
-      if(dataArray[0][i*10+j*2].search(/除去可/) != -1){
-        string = string.substr(0,string.length-1);
-        string += '（卵入り：除去可）\n';
-      }
-      else if(dataArray[0][i*10+j*2].search(/除去不可/) != -1){
-        string = string.substr(0,string.length-1);
-        string += '（卵入り：除去不可）\n';
-      }
-      else{
-        string += dataArray[0][i*10+j*2+1] + dataArray[0][i*10+j*2] + '\n';
-      }
+  var string = '';
+  for(var j = 0; j < 5; j++){
+    if(data.lunch1[j] == ''){
+      break;
     }
-    stringArray.push(string);
+    if(data.lunch1[j].search(/除去可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去可）\n';
+    }
+    else if(data.lunch1[j].search(/除去不可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去不可）\n';
+    }
+    else{
+      string += (data.lunch1New[j])?'🈟':'';
+      string += data.lunch1[j] + '\n';
+    }
   }
+  stringArray.push(string);
+  string = '';
+  for(var j = 0; j < 5; j++){
+    if(data.lunch2[j] == ''){
+      break;
+    }
+    if(data.lunch2[j].search(/除去可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去可）\n';
+    }
+    else if(data.lunch2[j].search(/除去不可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去不可）\n';
+    }
+    else{
+      string += (data.lunch2New[j])?'🈟':'';
+      string += data.lunch2[j] + '\n';
+    }
+  }
+  stringArray.push(string);
+  string = '';
+  for(var j = 0; j < 5; j++){
+    if(data.dinner[j] == ''){
+      break;
+    }
+    if(data.dinner[j].search(/除去可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去可）\n';
+    }
+    else if(data.dinner[j].search(/除去不可/) != -1){
+      string = string.substr(0,string.length-1);
+      string += '（卵入り：除去不可）\n';
+    }
+    else{
+      string += (data.dinnerNew[j])?'🈟':'';
+      string += data.dinner[j] + '\n';
+    }
+  }
+  stringArray.push(string);
+  string = '';
+  
   return stringArray;
 }
 

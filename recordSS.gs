@@ -2,7 +2,7 @@
  * 1週間分のメニューをSpreadsheetに記録する
  * 日曜0時から10分毎に実行
  * 
- * @return
+ * @return {void}
  */
 function writeSpreadSheet(){
   var menuData = getWeekMenu();
@@ -211,7 +211,7 @@ function recordMenu(menuData){
 }
 
 /**
- * SSの適当な範囲(2年ぶんくらいか？)を検索して新メニューか判定
+ * SS全体を検索して新メニューか判定
  *  
  * @param {string} menu
  * @param {SpreadSheetApp} spreadsheet
