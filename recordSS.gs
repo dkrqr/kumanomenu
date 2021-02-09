@@ -28,9 +28,9 @@ function writeSpreadSheet(){
 
 /**
  * 1週間分のメニューをformから取得し，次の形のJSONの配列で返す
- * {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
  * 
- * @return {array} {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * @return {array} {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
  */
 
 function getWeekMenuFromForm(){
@@ -62,8 +62,8 @@ function getWeekMenuFromForm(){
       var pre = itemResponses[i*3+j+1].getResponse();
       menus.push(pre.match(/^.*?$/mg));
     }
-    menuData.push({date:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
-    Logger.log({date:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
+    menuData.push({unixtime:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
+    Logger.log({unixtime:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
   }
 
   scriptProperties.setProperty('formTimeStamp',new Date().valueOf());
@@ -74,9 +74,9 @@ function getWeekMenuFromForm(){
 
 /**
  * 1週間分のメニューをhttps://menus.kumano-ryo.com/ から取得し，次の形のJSONの配列で返す
- * {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
  * 
- * @return {array} {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * @return {array} {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
  */
 
 function getWeekMenu(){
@@ -113,18 +113,18 @@ function getWeekMenu(){
         menus[j][k] = menus[j][k].replace(/,/g,'');
       }
     }
-    menuData.push({date:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
-    Logger.log({date:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
+    menuData.push({unixtime:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
+    Logger.log({unixtime:dateMillisec,lunch1:menus[0],lunch2:menus[1],dinner:menus[2]});
   }
   return menuData;
 }
 
 /**
  * 1週間分のメニューを次の形のJSONの配列で受け取り，日付の行のSSに記録
- * {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
  *  
- * @param {JSONobject} menuData {date:,lunch1:[],lunch2:[],dinner:[]}
- * @return {JSONobject} {date:,lunch1:[],lunch2:[],dinner:[]}
+ * @param {JSONobject} menuData {unixtime:,lunch1:[],lunch2:[],dinner:[]}
+ * @return {JSONobject} {unixtime:,lunch1:[],lunch2:[],dinner:[]}
  */
 
 function recordMenu(menuData){
@@ -137,7 +137,7 @@ function recordMenu(menuData){
   //メニュー数が日によって違うので，ここで全部5個に水増しします
   //昼食2はhttps://menus.kumano-ryo.com/ の仕様上4つまでしかありえませんが便宜的に5個にします
   //もっときれいな書き方があると思うけど分からん V8runtimeにすればfor of が使えるか？
-  var unixtime = menuData.date;
+  var unixtime = menuData.unixtime;
   var menu = menuData.lunch1;
   for(var i=0;i<5;i++){
     //メニューを入れる
@@ -194,7 +194,7 @@ function recordMenu(menuData){
   }
 
   //setすべき行を探す
-  var date = new Date(menuData.date); //このmenuDataの日付の00:00:00 GMT+09:00
+  var date = new Date(menuData.unixtime); //このmenuDataの日付の00:00:00 GMT+09:00
   var thisYear = new Date(date.getFullYear() + '/01/01'); //メニューの年のJan 01 00:00:00 GMT+09:00
   var elapsed = date.getTime() - thisYear.getTime(); //経過時間msec
   var dataRow = elapsed/1000/60/60/24 + 2; //除算で日数-1がでて，スプレッドシート2行目が1/1なので+2

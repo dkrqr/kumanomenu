@@ -3,7 +3,7 @@ function readTweet() {
   //Logger.log(response);
   //Logger.log(response.length);
   var inReplyToStatusIdStr = '';
-  var menuData = {date:{},lunch1:{},lunch2:{},dinner:{}};
+  var menuData = {unixtime:{},lunch1:{},lunch2:{},dinner:{}};
   while(response.length){
     for(var i = 0; i < response.length; i++){
       var status = response[i];
@@ -20,7 +20,7 @@ function readTweet() {
         }
         if(status.text.search(/\[昼食1\]/) != -1){
           menuData.lunch1 = formatTweet(status.text);
-          menuData.date = formatTweetDate(status);
+          menuData.unixtime = formatTweetDate(status);
           recordMenu(menuData);
           //Logger.log(menuData);
         }

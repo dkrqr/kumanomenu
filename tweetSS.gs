@@ -62,7 +62,7 @@ function tweetMenuSS(tomorrow) {
  * メニューをSpreadsheetから読み取る
  * 
  * @param {Integer} daysAfter 0:today,1:tomorrow,...
- * @return {object} {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+ * @return {object} {unixtime:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
  */
 function getMenufromSS(daysAfter){
   //dateからdataRowを算出
@@ -84,8 +84,8 @@ function getMenufromSS(daysAfter){
   var range = sheet.getRange(dataRow,1,1,31);
   var menuArray = range.getValues();
   Logger.log(menuArray);
-  var data = {date:0,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
-  data.date = date.valueOf();
+  var data = {unixtime:0,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+  data.unixtime = date.valueOf();
   for(var i=0;i<5;i++){
     data.lunch1.push(menuArray[0][i*2+1]);
     data.lunch2.push(menuArray[0][i*2+11]);
@@ -101,7 +101,7 @@ function getMenufromSS(daysAfter){
 /**
  * よしなに成型する
  * 
- * @param {object} data {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+ * @param {object} data {unixtime:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
  * @return {array} 整形後の文字列の配列 0:lunch1,1:lunch2,2:dinner
  */
 function convertToString(data){
@@ -171,14 +171,14 @@ function convertToString(data){
 /**
  * 1週間分のメニューをつぶやく
  * 
- * @param {array} menuData {date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
- * @return {array} [{date:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}]
+ * @param {array} menuData {unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}
+ * @return {array} [{unixtime:(msec),lunch1:[(string)],lunch2:[(string)],dinner:[(string)]}]
  */
 function tweetWeekMenu(menuData){
   var result = '';
   var content = '今週のメニュー\n';
   for(var i=0;i<menuData.length;i++){
-    var date = new Date(menuData[i].date);
+    var date = new Date(menuData[i].unixtime);
     content += Utilities.formatDate(date,'JST','MM月dd日');
     switch(date.getDay()){
       case 0: content += '(日)'; break;
