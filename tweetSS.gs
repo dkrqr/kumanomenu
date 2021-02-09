@@ -13,7 +13,6 @@ function tomorrowSS(){
  * @return {array} tweet内容
  */
 function tweetMenuSS(tomorrow) {
-  tomorrow = -3;
   //SSから情報を取得する関数
   var menuData = getMenufromSS(tomorrow);
   if(menuData.lunch1[0] == '' && menuData.lunch2[0] == '' && menu.dinner[0] == ''){
@@ -85,7 +84,7 @@ function getMenufromSS(daysAfter){
   var range = sheet.getRange(dataRow,1,1,31);
   var menuArray = range.getValues();
   Logger.log(menuArray);
-  var data = {date:Number,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
+  var data = {date:0,lunch1:[],lunch1New:[],lunch2:[],lunch2New:[],dinner:[],dinnerNew:[]};
   data.date = date.valueOf();
   for(var i=0;i<5;i++){
     data.lunch1.push(menuArray[0][i*2+1]);

@@ -11,12 +11,12 @@ function rejudgeNewMenu() {
         var menu = sheet.getRange(r,c).getValue();
         var textFinder = book.createTextFinder(menu).matchEntireCell(true);
         var foundRanges = textFinder.findAll();
+        sheet.getRange(r, c+1).setValue('🈟');
         for(var i=0; i<foundRanges.length; i++){
           var sheetName = purseInt(foundRanges[i].getSheet().getName());
           if(sheetName <= year || 
-            (sheetName == year && foundRanges[i].getRow())){
-              sheet.getRange(r, c+1).setValue('🈟');
-              console.log(menu);
+            (sheetName == year && foundRanges[i].getRow() < r)){
+              sheet.getRange(r, c+1).setValue('');
               break;
           }
         }
