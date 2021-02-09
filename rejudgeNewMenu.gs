@@ -13,8 +13,8 @@ function rejudgeNewMenu() {
         var foundRanges = textFinder.findAll();
         sheet.getRange(r, c+1).setValue('🈟');
         for(var i=0; i<foundRanges.length; i++){
-          var sheetName = purseInt(foundRanges[i].getSheet().getName());
-          if(sheetName <= year || 
+          var sheetName = parseInt(foundRanges[i].getSheet().getName());
+          if(sheetName < year || 
             (sheetName == year && foundRanges[i].getRow() < r)){
               sheet.getRange(r, c+1).setValue('');
               break;

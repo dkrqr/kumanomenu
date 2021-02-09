@@ -136,14 +136,15 @@ function recordMenu(menuData){
   //それぞれの要素についてメニュー名と新メニューかどうかを配列に入れます
   //メニュー数が日によって違うので，ここで全部5個に水増しします
   //昼食2はhttps://menus.kumano-ryo.com/ の仕様上4つまでしかありえませんが便宜的に5個にします
-  //もっときれいな書き方があると思うけど分からん
+  //もっときれいな書き方があると思うけど分からん V8runtimeにすればfor of が使えるか？
+  var unixtime = menuData.date;
   var menu = menuData.lunch1;
   for(var i=0;i<5;i++){
     //メニューを入れる
     if(menu && menu[i]){
       dataArray[0].push(menu[i]);
       //メニューの右のセルに新メニュー判定結果を入れる
-      if(isNewMenuSS(menu[i],book)){
+      if(isNewMenuSS(unixtime,menu[i],book)){
         dataArray[0].push('🈟');
       }
       else{
@@ -161,7 +162,7 @@ function recordMenu(menuData){
     if(menu && menu[i]){
       dataArray[0].push(menu[i]);
       //メニューの右のセルに新メニュー判定結果を入れる
-      if(isNewMenuSS(menu[i],book)){
+      if(isNewMenuSS(unixtime,menu[i],book)){
         dataArray[0].push('🈟');
       }
       else{
@@ -179,7 +180,7 @@ function recordMenu(menuData){
     if(menu && menu[i]){
       dataArray[0].push(menu[i]);
       //メニューの右のセルに新メニュー判定結果を入れる
-      if(isNewMenuSS(menu[i],book)){
+      if(isNewMenuSS(unixtime,menu[i],book)){
         dataArray[0].push('🈟');
       }
       else{
@@ -212,20 +213,31 @@ function recordMenu(menuData){
 
 /**
  * SS全体を検索して新メニューか判定
- *  
- * @param {string} menu
+ * 
+ * @param {Number} unixtime
+ * @param {String} menu
  * @param {SpreadSheetApp} spreadsheet
- * @return {Integer} true:1,false:0
+ * @return {Boolean} 
  */
-function isNewMenuSS(menu,spreadsheet){
+function isNewMenuSS(unixtime,menu,spreadsheet){
+  var date = new Date(unixtime);
+  var year = date.getFullYear();
+  var thisYear = new Date(year.toString() + '/01/01'); //メニューの年のJan 01 00:00:00 GMT+09:00
+  var elapsed = date.getTime() - thisYear.getTime(); //経過時間msec
+  var dataRow = elapsed/1000/60/60/24 + 2; //除算で日数-1がでて，スプレッドシート2行目が1/1なので+2
+
   var textFinder = spreadsheet.createTextFinder(menu).matchEntireCell(true);
-  if(textFinder.findNext() == null){
-    return 1;
+  var foundRanges = textFinder.findAll();
+  for(var i=0; i<foundRanges.length; i++){
+    var sheetName = parseInt(foundRanges[i].getSheet().getName());
+    if(sheetName < year || 
+      (sheetName == year && foundRanges[i].getRow() < dataRow))   {
+      return false;
+    }
   }
-  else{
-    return 0;
-  }
+  return true;
 }
+
 
 /**
  * 新年に新しいsheetを作る
