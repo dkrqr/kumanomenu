@@ -13,14 +13,20 @@ function writeSpreadSheet(){
     }
     tweetWeekMenu(menuData);
   }
-  else{
-    menuData = getWeekMenuFromForm();
-    if(menuData.length != 0){
-      deleteTenMinTriggerSS();
-      for(var i=0;i<menuData.length;i++){
-        recordMenu(menuData[i]);
-      }
-      tweetWeekMenu(menuData);
+  return;
+}
+
+/**
+ * 1週間分のメニューをSpreadsheetに記録する
+ * 
+ * @return {void}
+ */
+function writeSpreadSheetFromFrom(){
+  menuData = getWeekMenuFromForm();
+  if(menuData.length != 0){
+    deleteTenMinTriggerSS();
+    for(var i=0;i<menuData.length;i++){
+      recordMenu(menuData[i]);
     }
   }
   return;
@@ -35,8 +41,6 @@ function writeSpreadSheet(){
 
 function getWeekMenuFromForm(){
   // フォームを開いて，まえにチェックしたときのタイムスタンプ以降の回答を取得
-  // https://developers.google.com/apps-script/reference/forms/item-response
-  // formの入力をトリガーにする方法を見つけたのでそのうち変える
   var scriptProperties = PropertiesService.getScriptProperties();
   var form = FormApp.openById(scriptProperties.getProperty('formId'));
   var formResponses = form.getResponses(new Date(parseFloat(scriptProperties.getProperty('formTimeStamp'))));

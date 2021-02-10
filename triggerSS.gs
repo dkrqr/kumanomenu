@@ -25,3 +25,14 @@ function deleteTenMinTriggerSS(){
   deleteTriggerById(tenMinId);
   return;
 }
+
+
+function buildTriggerForForm(){
+  var scriptProp = PropertiesService.getScriptProperties();
+  var formId = scriptProp.getProperty('formId');
+  ScriptApp.newTrigger('writeSpreadSheetFromFrom')
+  .forForm(formId)
+  .onFormSubmit()
+  .create();
+  return;
+}
