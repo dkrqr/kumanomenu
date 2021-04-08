@@ -12,6 +12,10 @@ function writeSpreadSheet(){
       recordMenu(menuData[i]);
     }
     tweetWeekMenu(menuData);
+    tweetMenuSS(0);
+    if(new Date().getHours() >= 22){
+      tweetMenuSS(1);
+    }
   }
   return;
 }
@@ -27,6 +31,11 @@ function writeSpreadSheetFromFrom(){
     deleteTenMinTriggerSS();
     for(var i=0;i<menuData.length;i++){
       recordMenu(menuData[i]);
+    }
+    tweetWeekMenu(menuData);
+    tweetMenuSS(0);
+    if(new Date().getHours() >= 22){
+      tweetMenuSS(1);
     }
   }
   return;

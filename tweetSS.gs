@@ -9,12 +9,12 @@ function tomorrowSS(){
  * メニューをSpreadsheetから読み取ってtweetする
  * 毎日8時半に今日，21時半に明日をtweet
  * 
- * @param {Integer} tomorrow 1:tomorrow,0:today
+ * @param {Integer} daysAfter 1:tomorrow,0:today
  * @return {array} tweet内容
  */
-function tweetMenuSS(tomorrow) {
+function tweetMenuSS(daysAfter) {
   //SSから情報を取得する関数
-  var menuData = getMenufromSS(tomorrow);
+  var menuData = getMenufromSS(daysAfter);
   if(menuData.lunch1[0] == '' && menuData.lunch2[0] == '' && menu.dinner[0] == ''){
     return;
   }
@@ -22,10 +22,10 @@ function tweetMenuSS(tomorrow) {
   var stringArray = convertToString(menuData);
   //日付，昼食とかをつける
   var date = new Date();
-  date.setDate(date.getDate() + tomorrow);
+  date.setDate(date.getDate() + daysAfter);
   var dateString = Utilities.formatDate(date, "JST", "MM月dd日");
   var asu;
-  switch(tomorrow){
+  switch(daysAfter){
     case 0:
       asu = '今日';
       break;
@@ -36,7 +36,7 @@ function tweetMenuSS(tomorrow) {
       asu = '明後日';
       break;
     default:
-    　asu = tomorrow + '日後';
+    　asu = daysAfter + '日後';
       break;
   }
   Logger.log(stringArray);
@@ -195,9 +195,9 @@ function tweetWeekMenu(menuData){
                '\n[夕食] '  + ((menuData[i].dinner == null)?'なし':menuData[i].dinner[0]);
     result = postLongTweet(content,result);
     if(result.getResponseCode() != 200){
-      console.log(stringArray[i] + "を送信できませんでした");
+      console.log(content + "を送信できませんでした");
       return 1;
     }
-    content += '';
+    content = '';
   }
 }

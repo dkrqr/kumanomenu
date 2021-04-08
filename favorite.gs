@@ -22,7 +22,7 @@ function like() {
 function searchAndLike() {
     const scriptProp = PropertiesService.getScriptProperties();
     
-    const status = searchTweet("熊野寮+寮食|橙食券").statuses;
+    const status = searchTweet("熊野+寮食").statuses;
     for (var i = 0; i < status.length; i++) {
         if (status[i]["user"]["screen_name"] != "kumanomenu" &&
             status[i]["user"]["screen_name"] != "ryosyoku_buono"){
