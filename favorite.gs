@@ -21,17 +21,19 @@ function like() {
 
 function searchAndLike() {
     const scriptProp = PropertiesService.getScriptProperties();
-    
+    const sinceId = scriptProp.getProperty('sinceIdS');
+
     const status = searchTweet("熊野+寮食").statuses;
     for (var i = 0; i < status.length; i++) {
         if (status[i]["user"]["screen_name"] != "kumanomenu" &&
-            status[i]["user"]["screen_name"] != "ryosyoku_buono"){
+            status[i]["user"]["screen_name"] != "ryosyoku_buono" &&
+            status[i]["id_str"] > sinceId){
             favorite(status[i]["id_str"]);
             //Logger.log(status[0]["user"]["id_str"]);
         }
     }
     if(status.length) {
-        scriptProp.setProperty('sinceId', status[0]["id_str"]);        
+        scriptProp.setProperty('sinceIdS', status[0]["id_str"]);        
     }
     return 0;
 }

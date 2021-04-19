@@ -193,11 +193,13 @@ function tweetWeekMenu(menuData){
     content += '\n[昼食1] ' + ((menuData[i].lunch1 == null)?'なし':menuData[i].lunch1[0]) + 
                '\n[昼食2] ' + ((menuData[i].lunch2 == null)?'なし':menuData[i].lunch2[0]) +
                '\n[夕食] '  + ((menuData[i].dinner == null)?'なし':menuData[i].dinner[0]);
-    result = postLongTweet(content,result);
-    if(result.getResponseCode() != 200){
-      console.log(content + "を送信できませんでした");
-      return 1;
+    if(i%2 == 0 || i == menuData.length - 1){
+      result = postLongTweet(content,result);
+      if(result.getResponseCode() != 200){
+        console.log(content + "を送信できませんでした");
+        return 1;
+      }
+      content = '';
     }
-    content = '';
   }
 }
