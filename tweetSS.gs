@@ -111,13 +111,9 @@ function convertToString(data){
     if(data.lunch1[j] == ''){
       break;
     }
-    if(data.lunch1[j].search(/除去可/) != -1){
+    if(data.lunch1[j].search(/除去/) != -1){
       string = string.substr(0,string.length-1);
-      string += '（卵入り：除去可）\n';
-    }
-    else if(data.lunch1[j].search(/除去不可/) != -1){
-      string = string.substr(0,string.length-1);
-      string += '（卵入り：除去不可）\n';
+      string += '（' + data.lunch1[j] + '）\n';
     }
     else{
       string += (data.lunch1New[j])?'🈟':'';
@@ -130,13 +126,9 @@ function convertToString(data){
     if(data.lunch2[j] == ''){
       break;
     }
-    if(data.lunch2[j].search(/除去可/) != -1){
+    if(data.lunch2[j].search(/除去/) != -1){
       string = string.substr(0,string.length-1);
-      string += '（卵入り：除去可）\n';
-    }
-    else if(data.lunch2[j].search(/除去不可/) != -1){
-      string = string.substr(0,string.length-1);
-      string += '（卵入り：除去不可）\n';
+      string += '（' + data.lunch2[j] + '）\n';
     }
     else{
       string += (data.lunch2New[j])?'🈟':'';
@@ -149,13 +141,9 @@ function convertToString(data){
     if(data.dinner[j] == ''){
       break;
     }
-    if(data.dinner[j].search(/除去可/) != -1){
+    if(data.dinner[j].search(/除去/) != -1){
       string = string.substr(0,string.length-1);
-      string += '（卵入り：除去可）\n';
-    }
-    else if(data.dinner[j].search(/除去不可/) != -1){
-      string = string.substr(0,string.length-1);
-      string += '（卵入り：除去不可）\n';
+      string += '（' + data.dinner[j] + '）\n';
     }
     else{
       string += (data.dinnerNew[j])?'🈟':'';
